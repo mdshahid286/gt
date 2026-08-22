@@ -63,7 +63,7 @@ Respond with ONLY the JSON object described in your instructions."""
 
         response = self.client.chat.completions.create(
             model=self.model,
-            max_tokens=300,
+            max_tokens=600,
             temperature=self.temperature,
             messages=[
                 {"role": "system", "content": BASELINE_SYSTEM_PROMPT},

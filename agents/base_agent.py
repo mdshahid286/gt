@@ -106,15 +106,14 @@ Respond with ONLY a JSON object in exactly this shape, no other text before or a
     def _call_model(self, user_message: str) -> str:
         response = self.client.chat.completions.create(
             model=self.model,
-            max_tokens=400,
+            max_tokens=800,
             temperature=self.temperature,
             messages=[
                 {"role": "system", "content": self.SYSTEM_PROMPT},
                 {"role": "user", "content": user_message},
             ],
         )
-        return response.choices[0].message.content
-
+        return response.choices[0].message.content or ""
     @staticmethod
     def _parse_json(raw_text: str) -> dict:
         text = raw_text.strip()
