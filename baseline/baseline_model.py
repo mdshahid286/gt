@@ -11,6 +11,8 @@ Uses the same provider-agnostic OpenAI-compatible pattern as agents/base_agent.p
 import json
 import os
 from openai import OpenAI
+from dotenv import load_dotenv
+load_dotenv()
 
 PROVIDER_CONFIGS = {
     "gemini": {
@@ -21,7 +23,7 @@ PROVIDER_CONFIGS = {
     "groq": {
         "base_url": "https://api.groq.com/openai/v1",
         "api_key_env": "GROQ_API_KEY",
-        "default_model": "llama-3.3-70b-versatile",
+        "default_model": "openai/gpt-oss-120b",
     },
 }
 

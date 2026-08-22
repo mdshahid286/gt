@@ -14,6 +14,8 @@ import json
 import os
 import sys
 from openai import OpenAI
+from dotenv import load_dotenv
+load_dotenv()
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from contract import validate_agent_output, ContractViolation
@@ -30,7 +32,7 @@ PROVIDER_CONFIGS = {
     "groq": {
         "base_url": "https://api.groq.com/openai/v1",
         "api_key_env": "GROQ_API_KEY",
-        "default_model": "llama-3.3-70b-versatile",  # good quality; ~1,000 requests/day on free tier
+        "default_model": "openai/gpt-oss-120b", # good quality; ~1,000 requests/day on free tier
         # alternative: "llama-3.1-8b-instant" -- lower quality but ~14,400 requests/day free
     },
 }
