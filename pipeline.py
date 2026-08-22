@@ -54,14 +54,40 @@ def evaluate_candidate(resume_text: str, job_description: str,
     # Aggregation: pure code, no LLM calls from here down
     bargaining_result = nash_bargaining_decision(utilities, weights, disagreement_points)
 
-    # Per-decision Shapley explanation
+    # Per-decision Shapley explanation.
+    # NOTE: normalizing to a "% contribution to hire" only makes sense when the
+    # candidate was actually hired with a meaningfully positive total gain.
+    # For rejected candidates, or edge cases where the total gain is near zero,
+    # forcing a percentage breakdown produces nonsensical values (e.g. -184%,
+    # 112%) because you'd be dividing by a small or negative denominator. In
+    # those cases we report the raw Shapley values instead of a percentage --
+    # still meaningful as relative point-contributions, just not framed as
+    # shares of a "whole" that doesn't exist for a rejected candidate.
     agent_names = list(utilities.keys())
     shapley_values = exact_shapley_values(
         agent_names,
         lambda subset: utility_gain_characteristic(subset, utilities, disagreement_points),
     )
-    total_shapley = sum(shapley_values.values()) or 1e-9  # avoid div by zero
-    explanation_pct = {agent: round(100 * val / total_shapley, 1) for agent, val in shapley_values.items()}
+    total_shapley = sum(shapley_values.values())
+
+    MIN_MEANINGFUL_TOTAL = 0.05  # below this, percentage normalization becomes unstable
+    if bargaining_result["decision"] == "hire" and total_shapley > MIN_MEANINGFUL_TOTAL:
+        shapley_explanation = {
+            "type": "percentage",
+            "values": {agent: round(100 * val / total_shapley, 1) for agent, val in shapley_values.items()},
+        }
+    else:
+        shapley_explanation = {
+            "type": "raw_value",
+            "values": {agent: round(val, 3) for agent, val in shapley_values.items()},
+            "note": (
+                "Percentage attribution is only shown for hired candidates with a clearly "
+                "positive total gain. This candidate was rejected (or the total gain was too "
+                "small/negative to normalize sensibly), so raw Shapley values are shown "
+                "instead: more positive means that agent contributed more toward a 'hire' "
+                "outcome, more negative means it contributed toward the rejection."
+            ),
+        }
 
     return {
         "decision": bargaining_result["decision"],
@@ -72,7 +98,7 @@ def evaluate_candidate(resume_text: str, job_description: str,
             "education": education_result,
             "fairness": fairness_result,
         },
-        "shapley_explanation_pct": explanation_pct,
+        "shapley_explanation": shapley_explanation,
     }
 
 
@@ -85,7 +111,12 @@ if __name__ == "__main__":
             result = evaluate_candidate(resume_text, JOB_DESCRIPTION)
             print(f"DECISION: {result['decision']}")
             print(f"Reason: {result['nash_bargaining_detail']['reason']}")
-            print(f"Shapley explanation (% contribution): {result['shapley_explanation_pct']}")
+            exp = result["shapley_explanation"]
+            if exp["type"] == "percentage":
+                print(f"Shapley explanation (% contribution): {exp['values']}")
+            else:
+                print(f"Shapley explanation (raw values, not %): {exp['values']}")
+                print(f"  Note: {exp['note']}")
             for agent, output in result["agent_outputs"].items():
                 print(f"  [{agent}] utility={output['utility']} flags={output['flags']}")
                 print(f"    rationale: {output['rationale']}")
