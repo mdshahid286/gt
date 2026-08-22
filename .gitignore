@@ -1,0 +1,35 @@
+# Environment / secrets
+.env
+*.env
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor / OS junk
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Data / results that shouldn't be committed
+*.log
+outputs/
+results/
+*.csv.bak
+
+# Jupyter (if anyone uses notebooks for the evaluation/Pareto work)
+.ipynb_checkpoints/
