@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fair AI Recruitment System</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        .hero {
+            position: relative;
+            padding: 90px 0 60px 0;
+            overflow: hidden;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-size: 3.1rem;
+            line-height: 1.08;
+            margin: 14px 0 20px 0;
+        }
+
+        .hero h1 .grad {
+            background: linear-gradient(135deg, var(--agent-skills), var(--agent-experience));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p.lead {
+            color: var(--text-muted);
+            font-size: 1.08rem;
+            max-width: 480px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 14px;
+        }
+
+        .hero-canvas-wrap {
+            position: relative;
+            height: 420px;
+        }
+
+        #hero-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .section {
+            padding: 70px 0;
+        }
+
+        .section-head {
+            text-align: center;
+            max-width: 560px;
+            margin: 0 auto 44px auto;
+        }
+
+        .section-head h2 {
+            font-size: 2rem;
+            margin: 10px 0 12px 0;
+        }
+
+        .section-head p {
+            color: var(--text-muted);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .step-card {
+            padding: 26px;
+        }
+
+        .step-card .step-num {
+            font-family: var(--font-mono);
+            color: var(--text-faint);
+            font-size: 0.8rem;
+        }
+
+        .step-card h3 {
+            font-size: 1.1rem;
+            margin: 10px 0 8px 0;
+        }
+
+        .step-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .agent-card {
+            padding: 24px 20px;
+        }
+
+        .agent-card .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-bottom: 14px;
+        }
+
+        .agent-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+
+        .agent-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        .cta-band {
+            text-align: center;
+            padding: 80px 0;
+        }
+
+        .cta-band h2 {
+            font-size: 2.1rem;
+            margin-bottom: 16px;
+        }
+
+        .cta-band p {
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        footer {
+            border-top: 1px solid var(--border-glass);
+            padding: 30px 0;
+            text-align: center;
+            color: var(--text-faint);
+            font-size: 0.82rem;
+        }
+
+        @media (max-width: 900px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-canvas-wrap {
+                height: 300px;
+                order: -1;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .steps,
+            .agents-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+
+            .steps,
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <div class="nav-logo">⚖️ Fair Hiring</div>
+        <div class="nav-links">
+            <a href="#how">How it works</a>
+            <a href="#agents">The agents</a>
+            <a class="btn btn-primary" href="app.html">Launch panel</a>
+        </div>
+    </nav>
+
+    <section class="hero container">
+        <div class="hero-grid">
+            <div>
+                <div class="eyebrow">Cooperative Game Theory</div>
+                <h1>Four agents.<br /><span class="grad">One fair verdict.</span></h1>
+                <p class="lead">
+                    Resume screening as a negotiation, not a single score. Four independent
+                    agents evaluate skills, experience, education, and fairness -- then
+                    Nash Bargaining decides, and Shapley value explains exactly why.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="app.html">Launch the panel &rarr;</a>
+                    <a class="btn btn-ghost" href="#how">See how it works</a>
+                </div>
+            </div>
+            <div class="hero-canvas-wrap">
+                <canvas id="hero-canvas"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="how">
+        <div class="container">
+            <div class="section-head reveal">
+                <div class="eyebrow">The process</div>
+                <h2>From resume to explained verdict</h2>
+                <p>Three stages, no single point of failure.</p>
+            </div>
+            <div class="steps">
+                <div class="glass step-card reveal">
+                    <div class="step-num">01</div>
+                    <h3>Four agents score independently</h3>
+                    <p>Skills, Experience, Education, and Fairness each evaluate the candidate on their own axis -- no
+                        agent sees another's opinion first.</p>
+                </div>
+                <div class="glass step-card reveal">
+                    <div class="step-num">02</div>
+                    <h3>Nash Bargaining decides</h3>
+                    <p>A hire only happens if every agent gains relative to its disagreement point -- one strong dissent
+                        is enough to fall back to reject.</p>
+                </div>
+                <div class="glass step-card reveal">
+                    <div class="step-num">03</div>
+                    <h3>Shapley value explains</h3>
+                    <p>Exact Shapley computation attributes the decision back to each agent's marginal contribution -- a
+                        real percentage, not a guess.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="agents">
+        <div class="container">
+            <div class="section-head reveal">
+                <div class="eyebrow">The panel</div>
+                <h2>Meet the four agents</h2>
+                <p>Each one focuses on a single axis and never sees the others' scores until Fairness reviews their
+                    reasoning.</p>
+            </div>
+            <div class="agents-grid">
+                <div class="glass glass-tilt agent-card border-skills reveal">
+                    <div class="dot" style="background:var(--agent-skills)"></div>
+                    <h3 class="accent-skills">Skills</h3>
+                    <p>Technical and domain skill match -- tools, languages, depth demonstrated through real projects,
+                        not keyword matching.</p>
+                </div>
+                <div class="glass glass-tilt agent-card border-experience reveal">
+                    <div class="dot" style="background:var(--agent-experience)"></div>
+                    <h3 class="accent-experience">Experience</h3>
+                    <p>Relevant work history and trajectory -- never penalizes employment gaps by default.</p>
+                </div>
+                <div class="glass glass-tilt agent-card border-education reveal">
+                    <div class="dot" style="background:var(--agent-education)"></div>
+                    <h3 class="accent-education">Education</h3>
+                    <p>Relevance of academic background to the role -- bootcamps and self-taught paths score on merit,
+                        not prestige.</p>
+                </div>
+                <div class="glass glass-tilt agent-card border-fairness reveal">
+                    <div class="dot" style="background:var(--agent-fairness)"></div>
+                    <h3 class="accent-fairness">Fairness</h3>
+                    <p>Reviews the other three agents' reasoning for reliance on proxy signals -- never makes its own
+                        demographic guess.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-band container reveal">
+        <h2>Ready to see it negotiate?</h2>
+        <p>Load a sample resume or write your own, and watch the panel reach a verdict.</p>
+        <a class="btn btn-primary" href="app.html">Launch the panel &rarr;</a>
+    </section>
+
+    <footer>
+        Fair AI Recruitment System &middot; Cooperative Game Theory course project
+    </footer>
+
+    <script type="module">
+        import { initHeroScene } from './js/three-scene.js';
+        import { initScrollReveal, initCardTilt } from './js/interactions.js';
+        initHeroScene('hero-canvas');
+        initScrollReveal();
+        initCardTilt();
+    </script>
+</body>
+
+</html>
