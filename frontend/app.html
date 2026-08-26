@@ -4,151 +4,100 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fair AI Recruitment System &mdash; Panel</title>
+    <title>Fair AI Recruitment System — Evaluation Panel</title>
+    <meta name="description" content="Upload a resume and let four independent AI agents negotiate a hire/reject decision via Nash Bargaining." />
     <link rel="stylesheet" href="css/style.css" />
     <style>
-        .workspace {
-            padding: 36px 0 80px 0;
-        }
-
+        /* Page-specific tweaks */
         .workspace-grid {
-            display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 24px;
-            align-items: start;
+            grid-template-columns: 390px 1fr;
         }
 
-        .panel {
-            padding: 24px;
+        .input-panel .divider {
+            margin: 16px 0;
         }
 
-        .panel h2 {
-            font-size: 1.1rem;
-            margin-bottom: 4px;
-            font-weight: 600;
-        }
-
-        .panel .sub {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-        }
-
-        .field {
-            margin-bottom: 16px;
-        }
-
-        .status-row {
-            min-height: 20px;
-            margin-top: 12px;
-            font-size: 0.85rem;
-        }
-
-        .results-panel {
-            min-height: 460px;
-            padding: 30px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: var(--text-faint);
-        }
-
-        .empty-state .glyph {
-            font-size: 2.4rem;
-            margin-bottom: 14px;
-            opacity: 0.6;
-        }
-
-        .agent-results-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-        }
-
-        .agent-result-card {
-            padding: 18px;
-        }
-
-        #file-input {
-            display: none;
-        }
-
-        @media (max-width: 900px) {
-            .workspace-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .agent-results-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        #tab-paste { display: none; }
+        #tab-upload { display: block; }
     </style>
 </head>
 
 <body>
 
     <nav class="nav">
-        <div class="nav-logo">⚖️ Fair Hiring</div>
+        <div class="nav-logo">
+            <div class="logo-icon">⚖️</div>
+            Fair Hiring
+        </div>
         <div class="nav-links">
             <a href="batch.html">Batch mode</a>
-            <a href="index.html">&larr; Back to overview</a>
+            <a href="index.html">← Overview</a>
         </div>
     </nav>
 
     <section class="workspace container">
         <div class="workspace-grid">
 
-            <div class="card panel">
+            <!-- ── Left: Input panel ── -->
+            <div class="card input-panel">
                 <h2>Candidate input</h2>
-                <div class="sub">Upload a resume, paste text, or load a sample.</div>
+                <div class="sub">Upload a resume file, paste text, or load a sample below.</div>
 
+                <!-- Resume input tabs -->
                 <div class="tabs">
-                    <button class="tab-btn active" data-tab="upload" type="button">Upload file</button>
-                    <button class="tab-btn" data-tab="paste" type="button">Paste text</button>
+                    <button class="tab-btn active" data-tab="upload" type="button">📄 Upload file</button>
+                    <button class="tab-btn" data-tab="paste" type="button">✍️ Paste text</button>
                 </div>
 
+                <!-- Upload tab -->
                 <div class="field" id="tab-upload">
-                    <div class="dropzone" id="dropzone">
-                        <span class="icon">📄</span>
-                        Drop a resume here, or click to browse
-                        <div style="font-size:0.75rem;color:var(--text-faint);margin-top:4px;">.pdf, .docx, or .txt
-                        </div>
-                        <div class="filename" id="filename-display"></div>
+                    <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Drop a resume file here or click to browse">
+                        <span class="dz-icon">📄</span>
+                        <strong>Drop a resume here</strong> or click to browse
+                        <div class="dz-hint">.pdf &nbsp;·&nbsp; .docx &nbsp;·&nbsp; .txt</div>
+                        <div class="filename-display" id="filename-display"></div>
                     </div>
-                    <input type="file" id="file-input" accept=".pdf,.docx,.txt" />
+                    <input type="file" id="file-input" accept=".pdf,.docx,.txt" aria-label="Upload resume file" />
                 </div>
 
-                <div class="field" id="tab-paste" style="display:none;">
+                <!-- Paste tab -->
+                <div class="field" id="tab-paste">
                     <label for="resume">Candidate resume text</label>
-                    <textarea id="resume" rows="12" placeholder="Paste resume text here..."></textarea>
+                    <textarea id="resume" rows="11" placeholder="Paste resume text here…" aria-label="Resume text input"></textarea>
                 </div>
 
+                <div class="divider"></div>
+
+                <!-- Sample selector -->
                 <div class="field">
-                    <label for="sample-select">Or load a sample instead</label>
-                    <select id="sample-select">
-                        <option value="">-- none --</option>
+                    <label for="sample-select">Or load a sample candidate</label>
+                    <select id="sample-select" aria-label="Select a sample resume">
+                        <option value="">── none ──</option>
                     </select>
                 </div>
 
+                <!-- Job description -->
                 <div class="field">
                     <label for="job-description">Job description</label>
-                    <textarea id="job-description" rows="6"></textarea>
+                    <textarea id="job-description" rows="6" placeholder="Paste the job description here…" aria-label="Job description"></textarea>
                 </div>
 
-                <button class="btn btn-primary" id="run-btn" style="width:100%;justify-content:center;">
+                <!-- Run button -->
+                <button class="btn btn-primary" id="run-btn" style="width:100%;justify-content:center;" aria-label="Run evaluation">
                     Run evaluation
                 </button>
-                <div class="status-row" id="status"></div>
+                <div class="status-row" id="status" aria-live="polite"></div>
             </div>
 
+            <!-- ── Right: Results panel ── -->
             <div class="card results-panel">
+                <!-- Empty state -->
                 <div class="empty-state" id="empty-state">
-                    <div class="glyph">⚖️</div>
-                    <div>Upload or paste a resume, then click <strong>Run evaluation</strong> to see the panel
-                        deliberate.</div>
+                    <span class="glyph">⚖️</span>
+                    <p>Upload or paste a resume, then click <strong>Run evaluation</strong> to watch four agents deliberate and reach a verdict.</p>
                 </div>
+
+                <!-- Results (injected by results-view.js) -->
                 <div id="results" style="display:none;"></div>
             </div>
 
@@ -156,6 +105,6 @@
     </section>
 
     <script type="module" src="js/app.js"></script>
-</body>
 
+</body>
 </html>

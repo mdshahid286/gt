@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fair AI Recruitment System — Batch Mode</title>
+    <meta name="description" content="Evaluate multiple candidates at once. Results ranked by Nash product — the strongest hire agreement at the top." />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        .multi-dropzone {
+            border: 2px dashed var(--border-strong);
+            border-radius: var(--radius-sm);
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        .multi-dropzone:hover,
+        .multi-dropzone.drag-over {
+            border-color: var(--agent-experience);
+            background: rgba(129, 140, 248, 0.04);
+            box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.08);
+        }
+
+        .multi-dropzone .dz-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+            opacity: 0.6;
+        }
+
+        .empty-leaderboard {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-faint);
+        }
+
+        .empty-leaderboard .glyph {
+            font-size: 2.4rem;
+            display: block;
+            margin-bottom: 14px;
+            opacity: 0.4;
+        }
+
+        #batch-run-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        #multi-file-input { display: none; }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <div class="nav-logo">
+            <div class="logo-icon">⚖️</div>
+            Fair Hiring
+        </div>
+        <div class="nav-links">
+            <a href="app.html">← Single candidate</a>
+            <a href="index.html">Overview</a>
+        </div>
+    </nav>
+
+    <section class="batch-workspace container">
+        <div style="margin-bottom:28px;">
+            <div class="eyebrow" style="margin-bottom:8px;">Batch evaluation</div>
+            <h2 style="font-size:1.6rem;margin-bottom:6px;">Rank multiple candidates</h2>
+            <p style="color:var(--text-muted);font-size:0.9rem;max-width:560px;">Upload several resume files at once. Each is evaluated independently, then ranked by Nash product — the strongest consensus hire at the top.</p>
+        </div>
+
+        <div class="batch-grid">
+
+            <!-- ── Left: batch input ── -->
+            <div class="card batch-input-panel">
+                <h2 style="font-size:1.05rem;margin-bottom:4px;">Resume files</h2>
+                <div class="sub" style="color:var(--text-muted);font-size:0.82rem;margin-bottom:18px;">Add multiple files — .pdf, .docx, or .txt</div>
+
+                <div class="multi-dropzone" id="multi-dropzone" role="button" tabindex="0" aria-label="Drop multiple resume files or click to browse">
+                    <span class="dz-icon">📂</span>
+                    <strong>Drop resumes here</strong> or click to browse
+                    <div class="dz-hint" style="margin-top:5px;font-size:0.72rem;color:var(--text-faint);">.pdf &nbsp;·&nbsp; .docx &nbsp;·&nbsp; .txt &nbsp;·&nbsp; multiple files OK</div>
+                </div>
+                <input type="file" id="multi-file-input" accept=".pdf,.docx,.txt" multiple aria-label="Upload multiple resume files" />
+
+                <!-- File queue -->
+                <div class="file-queue" id="file-queue" style="margin-top:14px;"></div>
+
+                <div class="divider"></div>
+
+                <!-- Job description -->
+                <div class="field">
+                    <label for="batch-job-description">Job description (same for all)</label>
+                    <textarea id="batch-job-description" rows="5" placeholder="Paste the job description here…" aria-label="Job description for batch evaluation"></textarea>
+                </div>
+
+                <!-- Progress -->
+                <div class="progress-wrap" id="progress-wrap" style="display:none;">
+                    <div class="progress-label">
+                        <span id="progress-text">0 / 0 evaluated</span>
+                        <span id="progress-pct">0%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="batch-run-btn" disabled aria-label="Run batch evaluation">
+                    Run batch evaluation
+                </button>
+                <div class="status-row" id="batch-status" aria-live="polite"></div>
+            </div>
+
+            <!-- ── Right: results ── -->
+            <div class="card batch-results-panel">
+
+                <!-- Empty state -->
+                <div class="empty-leaderboard" id="batch-empty-state">
+                    <span class="glyph">📊</span>
+                    <p style="font-size:0.9rem;color:var(--text-faint);max-width:280px;margin:0 auto;">Add resume files, paste a job description, and click <strong>Run batch evaluation</strong> to see the ranked leaderboard.</p>
+                </div>
+
+                <!-- Summary bar (hidden until results) -->
+                <div class="summary-bar" id="batch-summary" style="display:none;" aria-live="polite">
+                    <div class="summary-item">
+                        <div class="summary-num" id="summary-total" style="color:var(--text-primary);">0</div>
+                        <span style="font-size:0.8rem;color:var(--text-muted);">total</span>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-num" id="summary-hire" style="color:var(--verdict-hire);">0</div>
+                        <span style="font-size:0.8rem;color:var(--text-muted);">hire</span>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-num" id="summary-reject" style="color:var(--verdict-reject);">0</div>
+                        <span style="font-size:0.8rem;color:var(--text-muted);">reject</span>
+                    </div>
+                    <div class="summary-item" style="margin-left:auto;">
+                        <span style="font-size:0.78rem;color:var(--text-faint);font-family:var(--font-mono);">ranked by Nash product ↓</span>
+                    </div>
+                </div>
+
+                <!-- Leaderboard header -->
+                <div class="leaderboard-header" id="leaderboard-header" style="display:none;">
+                    <span>#</span>
+                    <span>Candidate</span>
+                    <span style="text-align:right;">Agent scores</span>
+                    <span style="text-align:right;">Verdict</span>
+                    <span></span>
+                </div>
+
+                <!-- Leaderboard rows (injected by batch.js) -->
+                <div id="leaderboard" aria-label="Candidate ranking leaderboard" aria-live="polite"></div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ── Detail drawer ── -->
+    <div class="drawer-overlay" id="drawer-overlay" role="button" aria-label="Close detail panel" tabindex="-1"></div>
+    <div class="drawer" id="detail-drawer" role="dialog" aria-label="Candidate detail" aria-modal="true">
+        <div class="drawer-header">
+            <div>
+                <div class="drawer-title" id="drawer-candidate-name">Candidate</div>
+                <div class="drawer-subtitle" id="drawer-candidate-subtitle">Evaluation detail</div>
+            </div>
+            <button class="drawer-close" id="drawer-close" aria-label="Close">✕</button>
+        </div>
+        <div id="drawer-content"></div>
+    </div>
+
+    <script type="module" src="js/batch.js"></script>
+
+</body>
+</html>

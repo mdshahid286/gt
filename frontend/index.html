@@ -4,249 +4,41 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fair AI Recruitment System</title>
+    <title>Fair AI Recruitment System — Four Agents. One Fair Verdict.</title>
+    <meta name="description" content="Multi-agent resume screening powered by cooperative game theory. Four independent AI agents negotiate via Nash Bargaining, explained by Shapley values." />
     <link rel="stylesheet" href="css/style.css" />
-    <style>
-        .hero {
-            position: relative;
-            padding: 80px 0 50px 0;
-            overflow: hidden;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1.05fr 0.95fr;
-            gap: 40px;
-            align-items: center;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            line-height: 1.1;
-            margin: 14px 0 20px 0;
-            color: var(--text-primary);
-        }
-
-        .hero h1 .grad {
-            background: linear-gradient(135deg, var(--agent-skills), var(--agent-experience));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .hero p.lead {
-            color: var(--text-muted);
-            font-size: 1.08rem;
-            max-width: 480px;
-            line-height: 1.65;
-            margin-bottom: 30px;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 14px;
-        }
-
-        .hero-canvas-wrap {
-            position: relative;
-            height: 400px;
-            border-radius: 24px;
-            background: linear-gradient(180deg, #FFFFFF, #F6F5F2);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-md);
-        }
-
-        #hero-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .section {
-            padding: 64px 0;
-        }
-
-        .section-head {
-            text-align: center;
-            max-width: 560px;
-            margin: 0 auto 42px auto;
-        }
-
-        .section-head h2 {
-            font-size: 2rem;
-            margin: 10px 0 12px 0;
-        }
-
-        .section-head p {
-            color: var(--text-muted);
-        }
-
-        .steps {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .step-card {
-            padding: 26px;
-        }
-
-        .step-card .step-num {
-            font-family: var(--font-mono);
-            color: var(--text-faint);
-            font-size: 0.8rem;
-        }
-
-        .step-card h3 {
-            font-size: 1.1rem;
-            margin: 10px 0 8px 0;
-            font-weight: 600;
-        }
-
-        .step-card p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            line-height: 1.55;
-            margin: 0;
-        }
-
-        .agents-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-        }
-
-        .agent-card {
-            padding: 24px 20px;
-        }
-
-        .agent-card .dot {
-            margin-bottom: 14px;
-        }
-
-        .agent-card h3 {
-            font-size: 1.05rem;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .agent-card p {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            line-height: 1.55;
-            margin: 0;
-        }
-
-        .upload-highlight {
-            background: var(--bg-alt);
-        }
-
-        .upload-cols {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-        }
-
-        .upload-col {
-            text-align: center;
-            padding: 22px;
-        }
-
-        .upload-col .icon {
-            font-size: 1.6rem;
-            margin-bottom: 10px;
-        }
-
-        .upload-col h3 {
-            font-size: 0.98rem;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .upload-col p {
-            color: var(--text-muted);
-            font-size: 0.84rem;
-            margin: 0;
-        }
-
-        .cta-band {
-            text-align: center;
-            padding: 76px 0;
-        }
-
-        .cta-band h2 {
-            font-size: 2.1rem;
-            margin-bottom: 16px;
-        }
-
-        .cta-band p {
-            color: var(--text-muted);
-            margin-bottom: 28px;
-        }
-
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 30px 0;
-            text-align: center;
-            color: var(--text-faint);
-            font-size: 0.82rem;
-        }
-
-        @media (max-width: 900px) {
-            .hero-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-canvas-wrap {
-                height: 280px;
-                order: -1;
-            }
-
-            .hero h1 {
-                font-size: 2.1rem;
-            }
-
-            .steps,
-            .agents-grid,
-            .upload-cols {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (max-width: 560px) {
-
-            .steps,
-            .agents-grid,
-            .upload-cols {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
     <nav class="nav">
-        <div class="nav-logo">⚖️ Fair Hiring</div>
+        <div class="nav-logo">
+            <div class="logo-icon">⚖️</div>
+            Fair Hiring
+        </div>
         <div class="nav-links">
             <a href="#how">How it works</a>
             <a href="#agents">The agents</a>
-            <a class="btn btn-primary" href="app.html">Launch panel</a>
+            <a class="btn btn-primary btn-sm" href="app.html">Launch panel →</a>
         </div>
     </nav>
 
-    <section class="hero container">
-        <div class="hero-grid">
-            <div>
+    <!-- ── Hero ── -->
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-text">
                 <div class="eyebrow">Cooperative Game Theory</div>
-                <h1>Four agents.<br /><span class="grad">One fair verdict.</span></h1>
+                <h1>
+                    Four agents.<br>
+                    <span class="grad-text">One fair verdict.</span>
+                </h1>
                 <p class="lead">
-                    Resume screening as a negotiation, not a single score. Four independent
-                    agents evaluate skills, experience, education, and fairness -- then
-                    Nash Bargaining decides, and Shapley value explains exactly why.
+                    Resume screening reimagined as a negotiation. Four independent AI agents
+                    evaluate skills, experience, education, and fairness — then Nash Bargaining
+                    decides, and Shapley values explain exactly who drove the outcome.
                 </p>
                 <div class="hero-actions">
-                    <a class="btn btn-primary" href="app.html">Launch the panel &rarr;</a>
+                    <a class="btn btn-primary" href="app.html">Launch the panel →</a>
                     <a class="btn btn-ghost" href="#how">See how it works</a>
                 </div>
             </div>
@@ -256,116 +48,144 @@
         </div>
     </section>
 
+    <!-- ── Stats band ── -->
+    <div class="stats-band">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item reveal">
+                    <div class="stat-value grad-text" data-count="4">0</div>
+                    <div class="stat-label">Independent agents</div>
+                </div>
+                <div class="stat-item reveal reveal-delay-1">
+                    <div class="stat-value" style="color:var(--agent-experience);" data-count="16">0</div>
+                    <div class="stat-label">Coalition subsets analysed</div>
+                </div>
+                <div class="stat-item reveal reveal-delay-2">
+                    <div class="stat-value" style="color:var(--agent-skills);" data-count="0">0</div>
+                    <div class="stat-label">Single points of failure</div>
+                </div>
+                <div class="stat-item reveal reveal-delay-3">
+                    <div class="stat-value" style="color:var(--agent-fairness);" data-count="100">0</div>
+                    <div class="stat-label">% explainable decisions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── How it works ── -->
     <section class="section" id="how">
         <div class="container">
             <div class="section-head reveal">
                 <div class="eyebrow">The process</div>
                 <h2>From resume to explained verdict</h2>
-                <p>Three stages, no single point of failure.</p>
+                <p>Three mathematically rigorous stages — no black-box scores, no single point of failure.</p>
             </div>
-            <div class="steps">
+            <div class="steps-grid">
                 <div class="card step-card reveal">
                     <div class="step-num">01</div>
                     <h3>Four agents score independently</h3>
-                    <p>Skills, Experience, Education, and Fairness each evaluate the candidate on their own axis -- no
-                        agent sees another's opinion first.</p>
+                    <p>Skills, Experience, Education, and Fairness each evaluate the candidate on their own axis. No agent sees another's opinion — preventing groupthink at the source.</p>
                 </div>
-                <div class="card step-card reveal">
-                    <div class="step-num">02</div>
+                <div class="card step-card reveal reveal-delay-1">
+                    <div class="step-num" style="color:var(--agent-experience)">02</div>
                     <h3>Nash Bargaining decides</h3>
-                    <p>A hire only happens if every agent gains relative to its disagreement point -- one strong dissent
-                        is enough to fall back to reject.</p>
+                    <p>A hire only happens if every agent gains relative to its disagreement point. One well-founded dissent is enough to fall back to reject — unanimous buy-in required.</p>
                 </div>
-                <div class="card step-card reveal">
-                    <div class="step-num">03</div>
-                    <h3>Shapley value explains</h3>
-                    <p>Exact Shapley computation attributes the decision back to each agent's marginal contribution -- a
-                        real percentage, not a guess.</p>
+                <div class="card step-card reveal reveal-delay-2">
+                    <div class="step-num" style="color:var(--agent-skills)">03</div>
+                    <h3>Shapley values explain</h3>
+                    <p>Exact Shapley computation (2⁴ = 16 subsets) attributes the decision back to each agent's marginal contribution — real percentages, not post-hoc rationalization.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="section upload-highlight">
-        <div class="container">
-            <div class="section-head reveal">
-                <div class="eyebrow">Getting started</div>
-                <h2>Upload a resume, or paste one in</h2>
-                <p>PDF, Word, or plain text -- extracted automatically before the panel reviews it.</p>
-            </div>
-            <div class="upload-cols">
-                <div class="card upload-col reveal">
-                    <div class="icon">📄</div>
-                    <h3>Drop a file</h3>
-                    <p>.pdf, .docx, or .txt -- text is extracted server-side, no manual copying.</p>
-                </div>
-                <div class="card upload-col reveal">
-                    <div class="icon">✍️</div>
-                    <h3>Or paste text</h3>
-                    <p>Already have the text? Skip the upload and paste directly.</p>
-                </div>
-                <div class="card upload-col reveal">
-                    <div class="icon">⚖️</div>
-                    <h3>Get an explained verdict</h3>
-                    <p>Every score comes with a rationale, flags, and a Shapley breakdown.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section" id="agents">
+    <!-- ── Agents ── -->
+    <section class="section" id="agents" style="background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
         <div class="container">
             <div class="section-head reveal">
                 <div class="eyebrow">The panel</div>
                 <h2>Meet the four agents</h2>
-                <p>Each one focuses on a single axis and never sees the others' scores until Fairness reviews their
-                    reasoning.</p>
+                <p>Each one focuses on a single axis and never sees the others' scores until Fairness reviews their reasoning.</p>
             </div>
             <div class="agents-grid">
                 <div class="card card-tilt agent-card border-skills reveal">
-                    <div class="dot" style="background:var(--agent-skills)"></div>
+                    <div class="agent-icon" style="background:var(--glow-skills);">🛠️</div>
                     <h3 class="accent-skills">Skills</h3>
-                    <p>Technical and domain skill match -- tools, languages, depth demonstrated through real projects,
-                        not keyword matching.</p>
+                    <p>Technical and domain skill match — tools, languages, depth demonstrated through real projects, never keyword matching.</p>
                 </div>
-                <div class="card card-tilt agent-card border-experience reveal">
-                    <div class="dot" style="background:var(--agent-experience)"></div>
+                <div class="card card-tilt agent-card border-experience reveal reveal-delay-1">
+                    <div class="agent-icon" style="background:var(--glow-experience);">📈</div>
                     <h3 class="accent-experience">Experience</h3>
-                    <p>Relevant work history and trajectory -- never penalizes employment gaps by default.</p>
+                    <p>Relevant work history and career trajectory — never penalises employment gaps by default; flags them for fairness review instead.</p>
                 </div>
-                <div class="card card-tilt agent-card border-education reveal">
-                    <div class="dot" style="background:var(--agent-education)"></div>
+                <div class="card card-tilt agent-card border-education reveal reveal-delay-2">
+                    <div class="agent-icon" style="background:var(--glow-education);">🎓</div>
                     <h3 class="accent-education">Education</h3>
-                    <p>Relevance of academic background to the role -- bootcamps and self-taught paths score on merit,
-                        not prestige.</p>
+                    <p>Relevance of academic background to the role — bootcamps and self-taught paths score on merit, not institutional prestige.</p>
                 </div>
-                <div class="card card-tilt agent-card border-fairness reveal">
-                    <div class="dot" style="background:var(--agent-fairness)"></div>
+                <div class="card card-tilt agent-card border-fairness reveal reveal-delay-3">
+                    <div class="agent-icon" style="background:var(--glow-fairness);">⚖️</div>
                     <h3 class="accent-fairness">Fairness</h3>
-                    <p>Reviews the other three agents' reasoning for reliance on proxy signals -- never makes its own
-                        demographic guess.</p>
+                    <p>Reviews the other agents' reasoning for proxy signal reliance — never makes its own demographic inference about the candidate.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="cta-band container reveal">
-        <h2>Ready to see it negotiate?</h2>
-        <p>Upload a resume or load a sample, and watch the panel reach a verdict.</p>
-        <a class="btn btn-primary" href="app.html">Launch the panel &rarr;</a>
+    <!-- ── How Nash works (technical) ── -->
+    <section class="section">
+        <div class="container">
+            <div class="section-head reveal">
+                <div class="eyebrow">Under the hood</div>
+                <h2>The math behind the verdict</h2>
+                <p>Pure cooperative game theory — deterministic, auditable, no hidden scoring weights.</p>
+            </div>
+            <div class="steps-grid">
+                <div class="card step-card reveal">
+                    <div class="step-num" style="color:var(--agent-fairness)">Nash</div>
+                    <h3>Bargaining equilibrium</h3>
+                    <p>Each agent has a <em>disagreement point</em> — its utility if the candidate is rejected. A hire requires every agent to gain above that floor. The weighted Nash product is then maximised.</p>
+                </div>
+                <div class="card step-card reveal reveal-delay-1">
+                    <div class="step-num" style="color:var(--agent-education)">Shapley</div>
+                    <h3>Marginal contribution</h3>
+                    <p>For each agent, Shapley computes the average marginal value it adds across all 2⁴ = 16 possible coalitions — answering "without which agent would the outcome have changed?"</p>
+                </div>
+                <div class="card step-card reveal reveal-delay-2">
+                    <div class="step-num" style="color:var(--agent-skills)">Prompt</div>
+                    <h3>Injection defence</h3>
+                    <p>Every resume is wrapped in delimiters with a reminder placed <em>after</em> the untrusted text — exploiting the recency bias of LLMs to close the injection window.</p>
+                </div>
+            </div>
+        </div>
     </section>
 
+    <!-- ── CTA ── -->
+    <div class="container">
+        <div class="cta-band reveal">
+            <h2>Ready to see it negotiate?</h2>
+            <p>Upload a resume or load one of four sample candidates — watch the panel deliberate and reach a verdict in under 30 seconds.</p>
+            <a class="btn btn-primary" href="app.html">Launch the panel →</a>
+        </div>
+    </div>
+
     <footer>
-        Fair AI Recruitment System &middot; Cooperative Game Theory course project
+        <div class="container">
+            Fair AI Recruitment System &middot; Cooperative Game Theory &middot; Nash Bargaining + Shapley Values
+        </div>
     </footer>
 
     <script type="module">
-        import { initHeroScene } from './js/three-scene.js';
+        import { initHeroScene }                from './js/three-scene.js';
         import { initScrollReveal, initCardTilt } from './js/interactions.js';
+        import { initCounters }                  from './js/interactions.js';
+
         initHeroScene('hero-canvas');
         initScrollReveal();
         initCardTilt('.card-tilt');
+        initCounters('[data-count]');
     </script>
-</body>
 
+</body>
 </html>
