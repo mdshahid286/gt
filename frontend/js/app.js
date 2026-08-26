@@ -1,13 +1,8 @@
-import { initCardTilt } from './interactions.js';
+import { renderCandidateDetail } from './results-view.js';
 
-const API_BASE = 'http://localhost:8000';
-
-const AGENT_META = {
-    skills: { label: 'Skills', color: '#4FD1C5', borderClass: 'border-skills', accentClass: 'accent-skills' },
-    experience: { label: 'Experience', color: '#9F7AEA', borderClass: 'border-experience', accentClass: 'accent-experience' },
-    education: { label: 'Education', color: '#F6AD55', borderClass: 'border-education', accentClass: 'accent-education' },
-    fairness: { label: 'Fairness', color: '#F687B3', borderClass: 'border-fairness', accentClass: 'accent-fairness' },
-};
+// Same-origin now (FastAPI serves this file directly), so relative paths --
+// no more hardcoded localhost + no CORS dependency for this to work.
+const API_BASE = '';
 
 const els = {
     jobDescription: document.getElementById('job-description'),
@@ -17,10 +12,92 @@ const els = {
     status: document.getElementById('status'),
     results: document.getElementById('results'),
     emptyState: document.getElementById('empty-state'),
+    dropzone: document.getElementById('dropzone'),
+    fileInput: document.getElementById('file-input'),
+    filenameDisplay: document.getElementById('filename-display'),
+    tabButtons: document.querySelectorAll('.tab-btn'),
+    tabUpload: document.getElementById('tab-upload'),
+    tabPaste: document.getElementById('tab-paste'),
 };
 
 let SAMPLES = { job_description: '', resumes: {} };
 
+// ---------------------------------------------------------------------------
+// Tabs -- purely visual; the textarea is always the single source of truth
+// for resume text, whichever input method filled it.
+// ---------------------------------------------------------------------------
+els.tabButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        els.tabButtons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const isUpload = btn.dataset.tab === 'upload';
+        els.tabUpload.style.display = isUpload ? 'block' : 'none';
+        els.tabPaste.style.display = isUpload ? 'none' : 'block';
+    });
+});
+
+function switchToTab(tabName) {
+    const btn = [...els.tabButtons].find((b) => b.dataset.tab === tabName);
+    if (btn) btn.click();
+}
+
+// ---------------------------------------------------------------------------
+// File upload -- click to browse, or drag-and-drop
+// ---------------------------------------------------------------------------
+els.dropzone.addEventListener('click', () => els.fileInput.click());
+
+['dragenter', 'dragover'].forEach((evt) =>
+    els.dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        els.dropzone.classList.add('drag-over');
+    })
+);
+['dragleave', 'drop'].forEach((evt) =>
+    els.dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        els.dropzone.classList.remove('drag-over');
+    })
+);
+els.dropzone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileUpload(file);
+});
+els.fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) handleFileUpload(file);
+});
+
+async function handleFileUpload(file) {
+    const validExt = /\.(pdf|docx|txt)$/i.test(file.name);
+    if (!validExt) {
+        setStatus('Unsupported file type -- please upload a .pdf, .docx, or .txt file.', true);
+        return;
+    }
+
+    setStatus('Extracting text from ' + file.name + '...');
+    els.filenameDisplay.textContent = '';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const res = await fetch(`${API_BASE}/extract-text`, { method: 'POST', body: formData });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: res.statusText }));
+            throw new Error(err.detail || 'Extraction failed');
+        }
+        const data = await res.json();
+        els.resume.value = data.text;
+        els.filenameDisplay.textContent = `✓ ${data.filename} -- ${data.text.length} characters extracted`;
+        setStatus('');
+    } catch (e) {
+        setStatus(`Could not read file: ${e.message}`, true);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Samples
+// ---------------------------------------------------------------------------
 async function loadSamples() {
     try {
         const res = await fetch(`${API_BASE}/samples`);
@@ -33,15 +110,21 @@ async function loadSamples() {
             els.sampleSelect.appendChild(opt);
         });
     } catch (e) {
-        setStatus('Could not reach the backend at ' + API_BASE + ' -- is `uvicorn backend.api:app --reload` running?', true);
+        setStatus('Could not reach the backend -- make sure `uvicorn backend.api:app --reload` is running.', true);
     }
 }
 
 els.sampleSelect.addEventListener('change', () => {
     const key = els.sampleSelect.value;
-    els.resume.value = key ? SAMPLES.resumes[key] : '';
+    if (!key) return;
+    els.resume.value = SAMPLES.resumes[key];
+    els.filenameDisplay.textContent = '';
+    switchToTab('paste'); // reveal the loaded text so the user can see/edit it
 });
 
+// ---------------------------------------------------------------------------
+// Status / loading states
+// ---------------------------------------------------------------------------
 function setStatus(message, isError = false) {
     els.status.innerHTML = message
         ? `<span style="color:${isError ? 'var(--verdict-reject)' : 'var(--text-muted)'}">${message}</span>`
@@ -49,103 +132,22 @@ function setStatus(message, isError = false) {
 }
 
 function deliberatingHTML() {
-    return `
-    <div class="deliberating">
-      <div class="dot-pulse"><span></span><span></span><span></span><span></span></div>
-      Four agents deliberating...
-    </div>`;
+    return `<div class="deliberating"><div class="dot-pulse"><span></span><span></span><span></span><span></span></div>Four agents deliberating...</div>`;
 }
 
-function agentCardHTML(key, output) {
-    const meta = AGENT_META[key];
-    const pct = Math.max(0, Math.min(1, output.utility)) * 100;
-    const flags = (output.flags || [])
-        .map((f) => `<span class="flag-pill">&#9873; ${escapeHTML(f)}</span>`)
-        .join('');
-    return `
-    <div class="glass glass-tilt agent-result-card ${meta.borderClass}">
-      <div class="${meta.accentClass}" style="font-weight:600;font-size:0.95rem;">${meta.label}</div>
-      <div class="score-value">${output.utility.toFixed(2)}</div>
-      <div class="score-track"><div class="score-fill" style="background:${meta.color}" data-target="${pct}"></div></div>
-      <div style="min-height:20px">${flags}</div>
-      <p style="color:var(--text-muted);font-size:0.83rem;line-height:1.5;margin-top:10px;">${escapeHTML(output.rationale)}</p>
-    </div>`;
-}
-
-function escapeHTML(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
-function renderResults(result) {
-    const decision = result.decision;
-    const isHire = decision === 'hire';
-
-    const agentOrder = ['skills', 'experience', 'education', 'fairness'];
-    const agentCards = agentOrder.map((k) => agentCardHTML(k, result.agent_outputs[k])).join('');
-
-    const exp = result.shapley_explanation;
-    const maxAbs = Math.max(...Object.values(exp.values).map((v) => Math.abs(v)), 0.001);
-    const shapleyRows = agentOrder
-        .map((k) => {
-            const val = exp.values[k];
-            const meta = AGENT_META[k];
-            const widthPct = (Math.abs(val) / maxAbs) * 100;
-            const label = exp.type === 'percentage' ? `${val.toFixed(1)}%` : val.toFixed(3);
-            return `
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-          <div style="width:90px;font-size:0.82rem;color:${meta.color}">${meta.label}</div>
-          <div style="flex:1;background:rgba(255,255,255,0.06);border-radius:4px;height:10px;overflow:hidden;">
-            <div style="height:100%;width:0%;background:${meta.color};border-radius:4px;transition:width 1s cubic-bezier(0.16,1,0.3,1);" data-target="${widthPct}"></div>
-          </div>
-          <div class="mono" style="width:64px;text-align:right;font-size:0.82rem;">${label}</div>
-        </div>`;
-        })
-        .join('');
-
-    els.results.innerHTML = `
-    <div class="verdict ${isHire ? 'verdict-hire' : 'verdict-reject'}">
-      <span class="verdict-dot"></span>${isHire ? 'Hired' : 'Rejected'}
-    </div>
-    <p style="color:var(--text-muted);margin-bottom:26px;">${escapeHTML(result.nash_bargaining_detail.reason)}</p>
-
-    <h3 style="font-size:1rem;margin-bottom:14px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-size:0.78rem;">Agent scores</h3>
-    <div class="agent-results-grid">${agentCards}</div>
-
-    <h3 style="font-size:1rem;margin:30px 0 14px 0;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-size:0.78rem;">Shapley explanation</h3>
-    <div class="glass" style="padding:22px;">
-      ${shapleyRows}
-      <p style="color:var(--text-faint);font-size:0.78rem;margin-top:10px;">
-        ${exp.type === 'percentage' ? '% contribution to the hire decision.' : exp.note}
-      </p>
-    </div>
-
-    <details style="margin-top:20px;">
-      <summary style="cursor:pointer;color:var(--text-muted);font-size:0.85rem;">Raw Nash bargaining detail</summary>
-      <pre class="mono" style="background:rgba(255,255,255,0.03);padding:14px;border-radius:8px;overflow-x:auto;font-size:0.78rem;margin-top:10px;">${escapeHTML(JSON.stringify(result.nash_bargaining_detail, null, 2))}</pre>
-    </details>
-  `;
-
-    els.emptyState.style.display = 'none';
-    els.results.style.display = 'block';
-
-    // trigger bar-fill animations on next frame (so the transition actually plays)
-    requestAnimationFrame(() => {
-        els.results.querySelectorAll('[data-target]').forEach((el) => {
-            el.style.width = el.dataset.target + '%';
-        });
-    });
-
-    initCardTilt('.agent-result-card');
-}
-
+// ---------------------------------------------------------------------------
+// Run evaluation
+// ---------------------------------------------------------------------------
 async function runEvaluation() {
     const resumeText = els.resume.value.trim();
     const jobDescription = els.jobDescription.value.trim();
 
-    if (!resumeText || !jobDescription) {
-        setStatus('Please provide both a job description and a resume.', true);
+    if (!resumeText) {
+        setStatus('Upload a resume file or paste resume text first.', true);
+        return;
+    }
+    if (!jobDescription) {
+        setStatus('Please provide a job description.', true);
         return;
     }
 
@@ -168,7 +170,9 @@ async function runEvaluation() {
 
         const result = await res.json();
         setStatus('');
-        renderResults(result);
+        renderCandidateDetail(els.results, result);
+        els.emptyState.style.display = 'none';
+        els.results.style.display = 'block';
     } catch (e) {
         setStatus(`Evaluation failed: ${e.message}`, true);
         els.emptyState.style.display = 'block';

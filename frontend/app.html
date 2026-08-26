@@ -8,13 +8,13 @@
     <link rel="stylesheet" href="css/style.css" />
     <style>
         .workspace {
-            padding: 40px 0 80px 0;
+            padding: 36px 0 80px 0;
         }
 
         .workspace-grid {
             display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 28px;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
             align-items: start;
         }
 
@@ -25,6 +25,7 @@
         .panel h2 {
             font-size: 1.1rem;
             margin-bottom: 4px;
+            font-weight: 600;
         }
 
         .panel .sub {
@@ -44,7 +45,7 @@
         }
 
         .results-panel {
-            min-height: 420px;
+            min-height: 460px;
             padding: 30px;
         }
 
@@ -57,7 +58,7 @@
         .empty-state .glyph {
             font-size: 2.4rem;
             margin-bottom: 14px;
-            opacity: 0.5;
+            opacity: 0.6;
         }
 
         .agent-results-grid {
@@ -68,6 +69,10 @@
 
         .agent-result-card {
             padding: 18px;
+        }
+
+        #file-input {
+            display: none;
         }
 
         @media (max-width: 900px) {
@@ -87,6 +92,7 @@
     <nav class="nav">
         <div class="nav-logo">⚖️ Fair Hiring</div>
         <div class="nav-links">
+            <a href="batch.html">Batch mode</a>
             <a href="index.html">&larr; Back to overview</a>
         </div>
     </nav>
@@ -94,14 +100,35 @@
     <section class="workspace container">
         <div class="workspace-grid">
 
-            <div class="glass panel">
+            <div class="card panel">
                 <h2>Candidate input</h2>
-                <div class="sub">Pick a sample, or write your own.</div>
+                <div class="sub">Upload a resume, paste text, or load a sample.</div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="upload" type="button">Upload file</button>
+                    <button class="tab-btn" data-tab="paste" type="button">Paste text</button>
+                </div>
+
+                <div class="field" id="tab-upload">
+                    <div class="dropzone" id="dropzone">
+                        <span class="icon">📄</span>
+                        Drop a resume here, or click to browse
+                        <div style="font-size:0.75rem;color:var(--text-faint);margin-top:4px;">.pdf, .docx, or .txt
+                        </div>
+                        <div class="filename" id="filename-display"></div>
+                    </div>
+                    <input type="file" id="file-input" accept=".pdf,.docx,.txt" />
+                </div>
+
+                <div class="field" id="tab-paste" style="display:none;">
+                    <label for="resume">Candidate resume text</label>
+                    <textarea id="resume" rows="12" placeholder="Paste resume text here..."></textarea>
+                </div>
 
                 <div class="field">
-                    <label for="sample-select">Sample resume</label>
+                    <label for="sample-select">Or load a sample instead</label>
                     <select id="sample-select">
-                        <option value="">-- write your own --</option>
+                        <option value="">-- none --</option>
                     </select>
                 </div>
 
@@ -110,21 +137,17 @@
                     <textarea id="job-description" rows="6"></textarea>
                 </div>
 
-                <div class="field">
-                    <label for="resume">Candidate resume</label>
-                    <textarea id="resume" rows="12"></textarea>
-                </div>
-
                 <button class="btn btn-primary" id="run-btn" style="width:100%;justify-content:center;">
                     Run evaluation
                 </button>
                 <div class="status-row" id="status"></div>
             </div>
 
-            <div class="glass results-panel">
+            <div class="card results-panel">
                 <div class="empty-state" id="empty-state">
-                    <div class="glyph">&#9878;&#65039;</div>
-                    <div>Pick a resume and click <strong>Run evaluation</strong> to see the panel deliberate.</div>
+                    <div class="glyph">⚖️</div>
+                    <div>Upload or paste a resume, then click <strong>Run evaluation</strong> to see the panel
+                        deliberate.</div>
                 </div>
                 <div id="results" style="display:none;"></div>
             </div>

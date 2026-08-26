@@ -25,20 +25,20 @@ export function initHeroScene(canvasId) {
     }
     window.addEventListener('resize', resize);
 
-    // central equilibrium core
+    // central equilibrium core -- soft graphite wireframe, restrained for light bg
     const core = new THREE.Mesh(
         new THREE.IcosahedronGeometry(1.15, 1),
-        new THREE.MeshBasicMaterial({ color: 0xf4f5f7, wireframe: true, transparent: true, opacity: 0.45 })
+        new THREE.MeshBasicMaterial({ color: 0x9CA3AF, wireframe: true, transparent: true, opacity: 0.35 })
     );
     scene.add(core);
 
     const innerGlow = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(0.55, 0),
-        new THREE.MeshBasicMaterial({ color: 0x9f7aea, transparent: true, opacity: 0.18 })
+        new THREE.IcosahedronGeometry(0.5, 0),
+        new THREE.MeshBasicMaterial({ color: 0x4F46E5, transparent: true, opacity: 0.1 })
     );
     scene.add(innerGlow);
 
-    const agentColors = [0x4fd1c5, 0x9f7aea, 0xf6ad55, 0xf687b3]; // skills, experience, education, fairness
+    const agentColors = [0x0D9488, 0x4F46E5, 0xD97706, 0xBE185D]; // skills, experience, education, fairness
     const orbitGroup = new THREE.Group();
     scene.add(orbitGroup);
 
@@ -59,7 +59,7 @@ export function initHeroScene(canvasId) {
         orbitGroup.add(sphere);
 
         const lineGeom = new THREE.BufferGeometry().setFromPoints([pos.clone(), new THREE.Vector3(0, 0, 0)]);
-        const line = new THREE.Line(lineGeom, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.3 }));
+        const line = new THREE.Line(lineGeom, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.45 }));
         orbitGroup.add(line);
 
         return { sphere, baseAngle: angle, basePos: pos.clone() };
